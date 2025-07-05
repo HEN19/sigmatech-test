@@ -54,9 +54,9 @@ func (input customerDAO) GetListCustomer(db *sql.DB, page, limit int) (result *[
 		customer  model.CustomerModel
 		customers []model.CustomerModel
 	)
-	query := "SELECT id, NIK, full_name, legal_name, birth_place, birth_date, salary, ktp_photo,selfie_photo,limit_1_month,limit_2_month,limit_3_month,limit_6_month FROM " + input.TableName
+	query := "SELECT id, NIK, full_name, legal_name, birth_place, birth_date, salary, ktp_photo,selfie_photo,limit_1_month,limit_2_month,limit_3_month,limit_6_month FROM " + input.TableName + "LIMIT ? OFFSET ?`"
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, limit, page)
 	if err != nil {
 		return
 	}

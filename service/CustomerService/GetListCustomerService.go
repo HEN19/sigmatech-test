@@ -15,8 +15,10 @@ func GetListCustomerService(page, limit int) (*[]out.CustomerDTOOut, ErrorModel.
 	db := config.Connect()
 	defer db.Close()
 
+	offset := (page - 1) * limit
+
 	// Get user profile from the DAO layer using the decoded user ID
-	customers, errGet := dao.CustomerDAO.GetListCustomer(db, page, limit)
+	customers, errGet := dao.CustomerDAO.GetListCustomer(db, offset, limit)
 	if errGet != nil {
 		return nil, ErrorModel.ErrorDataNotFound(errGet.Error())
 	}
