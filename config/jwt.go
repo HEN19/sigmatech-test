@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/api-skeleton/dto/out"
@@ -63,7 +64,16 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := c.GetHeader("Authorization")
 		// Validate the token
-		_, err := ValidateToken(tokenString)
+		token := strings.Split(tokenString, " ")
+		if token[0] != "Bearer" {
+			// Respond with Unauthorized status using the ResponseOut function
+			out.ResponseOut(c, nil, false, http.StatusUnauthorized, "Unauthorized")
+			// Stop further processing
+			c.Abort()
+			return
+		}
+
+		_, err := ValidateToken(token[1])
 		if err != nil {
 			// Respond with Unauthorized status using the ResponseOut function
 			out.ResponseOut(c, nil, false, http.StatusUnauthorized, "Unauthorized")

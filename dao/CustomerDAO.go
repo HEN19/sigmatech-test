@@ -19,7 +19,7 @@ func (input customerDAO) New() (output customerDAO) {
 	return
 }
 
-func (input customerDAO) CreateCustomer(db *sql.Tx, inputStruct model.CustomerModel) (err error) {
+func (input customerDAO) CreateCustomer(db *sql.Tx, inputStruct *model.CustomerModel) (err error) {
 	var (
 		query string
 	)
@@ -27,18 +27,18 @@ func (input customerDAO) CreateCustomer(db *sql.Tx, inputStruct model.CustomerMo
 	query = fmt.Sprintf(`
 			INSERT INTO %s
 				(NIK, full_name, legal_name, 
-				birth_place, birtd_date, salary, 
+				birth_place, birth_date, salary, 
 				ktp_photo,selfie_photo,
 				limit_1_month,limit_2_month,limit_3_month,limit_6_month)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
 		`, input.TableName,
 	)
 
 	params := []interface{}{
 		inputStruct.NIK.String, inputStruct.FullName.String, inputStruct.LegalName.String,
-		inputStruct.BirthPlace.String, inputStruct.BirthDate.String, inputStruct.Salary,
+		inputStruct.BirthPlace.String, inputStruct.BirthDate.String, inputStruct.Salary.Float64,
 		inputStruct.KTPPhoto.String, inputStruct.SelfiePhoto.String,
-		inputStruct.Limit1Month, inputStruct.Limit2Month, inputStruct.Limit3Month, inputStruct.Limit6Month,
+		inputStruct.Limit1Month.Float64, inputStruct.Limit2Month.Float64, inputStruct.Limit3Month.Float64, inputStruct.Limit6Month.Float64,
 	}
 
 	_, err = db.Exec(query, params...)
@@ -49,8 +49,12 @@ func (input customerDAO) CreateCustomer(db *sql.Tx, inputStruct model.CustomerMo
 	return
 }
 
-func (input customerDAO) GetListCustomer(db *sql.DB) (result []model.CustomerModel, err error) {
-	query := "SELECT id, NIK, full_name, legal_name, birth_place, birtd_date, salary, ktp_photo,selfie_photo,limit_1_month,limit_2_month,limit_3_month,limit_6_month FROM " + input.TableName
+func (input customerDAO) GetListCustomer(db *sql.DB, page, limit int) (result *[]model.CustomerModel, err error) {
+	var (
+		customer  model.CustomerModel
+		customers []model.CustomerModel
+	)
+	query := "SELECT id, NIK, full_name, legal_name, birth_place, birth_date, salary, ktp_photo,selfie_photo,limit_1_month,limit_2_month,limit_3_month,limit_6_month FROM " + input.TableName
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -59,21 +63,20 @@ func (input customerDAO) GetListCustomer(db *sql.DB) (result []model.CustomerMod
 	defer rows.Close()
 
 	for rows.Next() {
-		var customer model.CustomerModel
 		err = rows.Scan(&customer.ID, &customer.NIK, &customer.FullName, &customer.LegalName,
 			&customer.BirthPlace, &customer.BirthDate, &customer.Salary, &customer.KTPPhoto, &customer.SelfiePhoto,
 			&customer.Limit1Month, &customer.Limit2Month, &customer.Limit3Month, &customer.Limit6Month)
 		if err != nil {
 			return
 		}
-		result = append(result, customer)
+		customers = append(customers, customer)
 	}
 
-	return
+	return &customers, nil
 }
 
 func (input customerDAO) GetDetailCustomer(db *sql.DB, id string) (result model.CustomerModel, err error) {
-	query := "SELECT id, NIK, full_name, legal_name, birth_place, birtd_date, salary, ktp_photo,selfie_photo,limit_1_month,limit_2_month,limit_3_month,limit_6_month FROM " + input.TableName + " WHERE id = $1"
+	query := "SELECT id, NIK, full_name, legal_name, birth_place, birth_date, salary, ktp_photo,selfie_photo,limit_1_month,limit_2_month,limit_3_month,limit_6_month FROM " + input.TableName + " WHERE id = $1"
 
 	row := db.QueryRow(query, id)
 	err = row.Scan(&result.ID, &result.NIK, &result.FullName, &result.LegalName,

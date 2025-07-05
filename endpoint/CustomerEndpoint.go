@@ -6,6 +6,7 @@ import (
 
 	"github.com/api-skeleton/constanta"
 	"github.com/api-skeleton/constanta/ErrorModel"
+	"github.com/api-skeleton/dto/out"
 	"github.com/api-skeleton/service/CustomerService"
 	"github.com/api-skeleton/utils"
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,12 @@ func CustomerWithoutParamEndpoint(c *gin.Context) {
 			return
 		}
 
-		CustomerService.InsertCustomerService(&userRequest)
+		_, errInsert := CustomerService.InsertCustomerService(&userRequest)
+		if errInsert.Code != constanta.CodeSuccessResponse {
+			c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, errInsert.Details))
+			return
+		}
+		out.ResponseOut(c, nil, true, constanta.CodeSuccessResponse, constanta.SuccessAddData)
 
 		break
 	case "GET":
@@ -38,7 +44,12 @@ func CustomerWithoutParamEndpoint(c *gin.Context) {
 
 		page, _ := strconv.Atoi(pageStr)
 		limit, _ := strconv.Atoi(limitStr)
-		CustomerService.GetListCustomerService(page, limit)
+		customers, errGet := CustomerService.GetListCustomerService(page, limit)
+		if errGet.Code != constanta.CodeSuccessResponse {
+			c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, errGet.Details))
+			return
+		}
+		out.ResponseOut(c, customers, true, constanta.CodeSuccessResponse, constanta.SuccessGetData)
 		break
 	}
 }
@@ -50,6 +61,13 @@ func CustomerWithParamEndpoint(c *gin.Context) {
 		fmt.Println(id)
 		break
 	case "GET":
+
+		customer, errGet := CustomerService.GetDetailCustomer(id)
+		if errGet.Code != constanta.CodeSuccessResponse {
+			c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, errGet.Details))
+			return
+		}
+		out.ResponseOut(c, customer, true, constanta.CodeSuccessResponse, constanta.SuccessGetData)
 		break
 	case "POST":
 		break

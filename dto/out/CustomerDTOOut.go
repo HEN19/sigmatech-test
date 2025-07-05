@@ -11,7 +11,7 @@ type CustomerDTOOut struct {
 	NIK         string
 	FullName    string
 	LegalName   string
-	BirthPlace  time.Time
+	BirthPlace  string
 	BirthDate   time.Time
 	Salary      float64
 	KTPPhoto    string
