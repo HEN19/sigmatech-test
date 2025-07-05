@@ -8,6 +8,7 @@ import (
 	"github.com/api-skeleton/constanta"
 	"github.com/api-skeleton/model"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/api-skeleton/dao"
 	"github.com/api-skeleton/dto/out"
@@ -24,7 +25,7 @@ func LoginService(c *gin.Context) (err error) {
 	userBody, err := utils.GetUserBody(c)
 
 	// Perform validation before mapping
-	errValidation := userBody.ValidationRegistration(c)
+	errValidation := userBody.ValidationLogin(c)
 	if errValidation.Code != constanta.CodeSuccessResponse {
 		c.JSON(errValidation.Code, errValidation)
 		return
@@ -45,7 +46,13 @@ func LoginService(c *gin.Context) (err error) {
 	}
 
 	// If user not found or invalid credentials
-	if user.ID.Int64 == 0 {
+	if user.ID == uuid.Nil {
+		c.JSON(constanta.CodeBadRequestResponse, constanta.ErrorDataUnknown)
+		return
+	}
+
+	isValidAccount := utils.CheckPasswordHash(userBody.Password, user.Password.String)
+	if !isValidAccount {
 		c.JSON(constanta.CodeBadRequestResponse, constanta.ErrorDataUnknown)
 		return
 	}

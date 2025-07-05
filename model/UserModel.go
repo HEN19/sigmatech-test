@@ -1,9 +1,13 @@
 package model
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"github.com/google/uuid"
+)
 
 type UserModel struct {
-	ID        sql.NullInt64
+	ID        uuid.UUID
 	Username  sql.NullString
 	Password  sql.NullString
 	FirstName sql.NullString
@@ -15,3 +19,4 @@ type UserModel struct {
 	CreatedAt sql.NullString
 	UpdatedAt sql.NullString
 }
+

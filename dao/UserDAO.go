@@ -48,14 +48,14 @@ func (input userDAO) InsertUser(db *sql.DB, inputStruct model.UserModel) (err er
 }
 
 func (input userDAO) LoginCheck(db *sql.DB, user model.UserModel) (result model.UserModel, err error) {
-	query := "SELECT id, username, first_name, last_name " +
+	query := "SELECT id, username,password, first_name, last_name " +
 		" FROM " + input.TableName +
-		" WHERE username = $1 AND password = $2 "
+		" WHERE username = $1 "
 
-	param := []interface{}{user.Username.String, user.Password.String}
+	param := []interface{}{user.Username.String}
 
 	results := db.QueryRow(query, param...)
-	dbError := results.Scan(&result.ID, &result.Username, &result.FirstName, &result.LastName)
+	dbError := results.Scan(&result.ID, &result.Username, &result.Password, &result.FirstName, &result.LastName)
 
 	if dbError != nil && dbError.Error() != "sql: no rows in result set" {
 		err = dbError
@@ -65,7 +65,7 @@ func (input userDAO) LoginCheck(db *sql.DB, user model.UserModel) (result model.
 	return
 }
 
-func (input userDAO) GetUserProfile(db *sql.DB, id int64) (model.UserModel, error) {
+func (input userDAO) GetUserProfile(db *sql.DB, id string) (model.UserModel, error) {
 	query := "SELECT first_name, last_name, gender, phone, email, address, created_at, updated_at " +
 		"FROM " + input.TableName + " WHERE id = $1"
 

@@ -9,21 +9,22 @@ import (
 	"github.com/api-skeleton/model"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var jwtKey = []byte("API-")
 
 type Claims struct {
-	Id       int64  `json:"id"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
+	Id       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	Name     string    `json:"name"`
 	jwt.StandardClaims
 }
 
 func GenerateToken(user model.UserModel) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
-		Id:       user.ID.Int64,
+		Id:       user.ID,
 		Username: user.Username.String,
 		Name:     user.FirstName.String + " " + user.LastName.String,
 		StandardClaims: jwt.StandardClaims{

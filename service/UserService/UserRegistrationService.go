@@ -8,6 +8,7 @@ import (
 	"github.com/api-skeleton/constanta/ErrorModel"
 	"github.com/api-skeleton/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 
 	"github.com/api-skeleton/dao"
 	"github.com/api-skeleton/dto/in"
@@ -31,6 +32,13 @@ func UserRegistration(c *gin.Context) {
 		return
 	}
 
+	passHash, err := utils.HashPassword(userRequest.Password)
+	if err != nil {
+		c.JSON(constanta.CodeInternalServerErrorResponse, ErrorModel.ErrorInternalServerError(c, err.Error()))
+		return
+	}
+	userRequest.Password = passHash
+
 	// Map the request body to the model
 	reqBody = mapToUserModel(userRequest)
 
@@ -53,7 +61,7 @@ func UserRegistration(c *gin.Context) {
 func mapToUserModel(reqBody in.UserRequest) model.UserModel {
 	// Map to model
 	return model.UserModel{
-		ID:        sql.NullInt64{Int64: reqBody.Id},
+		ID:        uuid.New(),
 		Username:  sql.NullString{String: reqBody.Username},
 		Password:  sql.NullString{String: reqBody.Password},
 		FirstName: sql.NullString{String: reqBody.FirstName},
