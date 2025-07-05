@@ -3,27 +3,29 @@ package config
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/api-skeleton/dto/out"
 	"github.com/api-skeleton/model"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var jwtKey = []byte("API-")
 
 type Claims struct {
-	Id       int64  `json:"id"`
-	Username string `json:"username"`
-	Name     string `json:"name"`
+	Id       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	Name     string    `json:"name"`
 	jwt.StandardClaims
 }
 
 func GenerateToken(user model.UserModel) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
-		Id:       user.ID.Int64,
+		Id:       user.ID,
 		Username: user.Username.String,
 		Name:     user.FirstName.String + " " + user.LastName.String,
 		StandardClaims: jwt.StandardClaims{
@@ -62,7 +64,16 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := c.GetHeader("Authorization")
 		// Validate the token
-		_, err := ValidateToken(tokenString)
+		token := strings.Split(tokenString, " ")
+		if token[0] != "Bearer" {
+			// Respond with Unauthorized status using the ResponseOut function
+			out.ResponseOut(c, nil, false, http.StatusUnauthorized, "Unauthorized")
+			// Stop further processing
+			c.Abort()
+			return
+		}
+
+		_, err := ValidateToken(token[1])
 		if err != nil {
 			// Respond with Unauthorized status using the ResponseOut function
 			out.ResponseOut(c, nil, false, http.StatusUnauthorized, "Unauthorized")

@@ -10,6 +10,7 @@ import (
 	"github.com/api-skeleton/dto/in"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func StructToJSON(input interface{}) (output string) {
@@ -40,6 +41,14 @@ func GetUserBody(c *gin.Context) (in.UserRequest, error) {
 	return userRequest, nil
 }
 
+func GetCustomerBody(c *gin.Context) (in.CustomerRequest, error) {
+	var customerReq in.CustomerRequest
+	if err := c.ShouldBindJSON(&customerReq); err != nil {
+		return customerReq, err
+	}
+	return customerReq, nil
+}
+
 func ReadParam(request *http.Request) (id int64, err error) {
 	strId, ok := mux.Vars(request)["Id"]
 	idParam, errConvert := strconv.Atoi(strId)
@@ -50,4 +59,14 @@ func ReadParam(request *http.Request) (id int64, err error) {
 		return
 	}
 	return
+}
+
+func HashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	return string(bytes), err
+}
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

@@ -31,7 +31,7 @@ func GetUserProfile(c *gin.Context) (err error) {
 	defer db.Close()
 
 	// Get user profile from the DAO layer using the decoded user ID
-	user, err := dao.UserDAO.GetUserProfile(db, claims.Id)
+	user, err := dao.UserDAO.GetUserProfile(db, claims.Id.String())
 	if err != nil {
 		out.ResponseOut(c, nil, false, constanta.CodeInternalServerErrorResponse, constanta.ErrorInternalDB)
 		return

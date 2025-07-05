@@ -42,6 +42,11 @@ func (input *UserRequest) ValidationRegistration(c *gin.Context) ErrorModel.Dyna
 	return input.mandatoryValidation()
 }
 
+
+func (input *UserRequest) ValidationLogin(c *gin.Context) ErrorModel.DynamicErrorResponse {
+
+	return input.mandatoryValidation()
+}
 func (input *UserRequest) mandatoryValidation() ErrorModel.DynamicErrorResponse {
 	if input.Username == "" {
 		return ErrorModel.ErrorInvalidRequest(nil, "username", "username is required")

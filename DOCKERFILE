@@ -1,0 +1,28 @@
+# Stage 1: Build the Go binary
+FROM golang:1.18-alpine AS builder
+
+WORKDIR /app
+
+# Copy all files to the container
+COPY . .
+
+# Download dependencies
+RUN go mod tidy
+
+# Build the binary for Linux with CGO disabled
+RUN CGO_ENABLED=0 GOOS=linux go build -o sigmatech-test ./cmd
+
+# Stage 2: Lightweight runtime image
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Copy the binary and .env file from the builder stage
+COPY --from=builder /app/sigmatech-test .
+COPY --from=builder /app/.env .
+
+# Expose the port the app runs on
+EXPOSE 8080
+
+# Run the application
+CMD ["./sigmatech-test"]
