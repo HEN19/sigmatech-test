@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/api-skeleton/config"
 	"github.com/api-skeleton/endpoint"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -38,21 +39,21 @@ func Controller() *gin.Engine {
 		//Customers Endpoint
 		customer := api.Group("/customer")
 		{
-			customer.POST("/", endpoint.CustomerWithoutParamEndpoint)
-			customer.GET("/", endpoint.CustomerWithoutParamEndpoint)
-			customer.PUT("/:id", endpoint.CustomerWithParamEndpoint)
-			customer.GET("/:id", endpoint.CustomerWithParamEndpoint)
-			customer.DELETE("/:id", endpoint.CustomerWithParamEndpoint)
+			customer.POST("/", config.AuthMiddleware(), endpoint.CustomerWithoutParamEndpoint)
+			customer.GET("/", config.AuthMiddleware(), endpoint.CustomerWithoutParamEndpoint)
+			customer.PUT("/:id", config.AuthMiddleware(), endpoint.CustomerWithParamEndpoint)
+			customer.GET("/:id", config.AuthMiddleware(), endpoint.CustomerWithParamEndpoint)
+			customer.DELETE("/:id", config.AuthMiddleware(), endpoint.CustomerWithParamEndpoint)
 		}
 
 		// Transaction Endpoint
 		transaction := api.Group("/transaction")
 		{
-			transaction.GET("/", endpoint.TransactionWithoutParamEndpoint)
-			transaction.POST("/", endpoint.TransactionWithoutParamEndpoint)
-			transaction.GET("/:id", endpoint.TransactionWithParamEndpoint)
-			transaction.PUT("/:id", endpoint.TransactionWithParamEndpoint)
-			transaction.DELETE("/:id", endpoint.TransactionWithParamEndpoint)
+			transaction.GET("/", config.AuthMiddleware(), endpoint.TransactionWithoutParamEndpoint)
+			transaction.POST("/", config.AuthMiddleware(), endpoint.TransactionWithoutParamEndpoint)
+			transaction.GET("/:id", config.AuthMiddleware(), endpoint.TransactionWithParamEndpoint)
+			transaction.PUT("/:id", config.AuthMiddleware(), endpoint.TransactionWithParamEndpoint)
+			transaction.DELETE("/:id", config.AuthMiddleware(), endpoint.TransactionWithParamEndpoint)
 
 		}
 	}

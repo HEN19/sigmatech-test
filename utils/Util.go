@@ -41,6 +41,14 @@ func GetUserBody(c *gin.Context) (in.UserRequest, error) {
 	return userRequest, nil
 }
 
+func GetCustomerBody(c *gin.Context) (in.CustomerRequest, error) {
+	var customerReq in.CustomerRequest
+	if err := c.ShouldBindJSON(&customerReq); err != nil {
+		return customerReq, err
+	}
+	return customerReq, nil
+}
+
 func ReadParam(request *http.Request) (id int64, err error) {
 	strId, ok := mux.Vars(request)["Id"]
 	idParam, errConvert := strconv.Atoi(strId)

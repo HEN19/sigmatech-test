@@ -1,6 +1,11 @@
 package in
 
-import "time"
+import (
+	"time"
+
+	"github.com/api-skeleton/constanta/ErrorModel"
+	"github.com/gin-gonic/gin"
+)
 
 type CustomerRequest struct {
 	NIK         string    `json:"NIK"`
@@ -15,4 +20,20 @@ type CustomerRequest struct {
 	Limit2Month float64   `json:"limit_2_month"`
 	Limit3Month float64   `json:"limit_3_month"`
 	Limit6Month float64   `json:"limit_6_month"`
+}
+
+// before inserting a new customer. It checks for mandatory fields and returns
+func (input *CustomerRequest) ValidationCustomerInsert(c *gin.Context) ErrorModel.DynamicErrorResponse {
+	return input.mandatoryValidation()
+}
+
+func (input *CustomerRequest) mandatoryValidation() ErrorModel.DynamicErrorResponse {
+	if input.NIK == "" {
+		return ErrorModel.ErrorInvalidRequest(nil, "NIK", "NIK is required")
+	}
+	if input.FullName == "" {
+		ErrorModel.ErrorInvalidRequest(nil, "Fullname", "Fullname is required")
+	}
+
+	return ErrorModel.NonErrorResponse()
 }
